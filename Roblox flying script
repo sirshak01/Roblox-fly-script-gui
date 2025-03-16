@@ -1,0 +1,51 @@
+local player = game.Players.LocalPlayer
+local flySpeed = 50  -- Default flying speed
+local maxSpeed = 200 -- Maximum speed limit
+local minSpeed = 10  -- Minimum speed limit
+local flying = false
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local bodyVelocity = Instance.new("BodyVelocity")
+bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge) -- Infinite force
+bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+
+local function startFlying()
+    if not flying then
+        flying = true
+        bodyVelocity.Parent = humanoidRootPart
+        while flying do
+            bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * flySpeed + Vector3.new(0, 5, 0) -- Adds slight upward force
+            task.wait(0.02) -- Prevents excessive loop execution
+        end
+    end
+end
+
+local function stopFlying()
+    flying = false
+    bodyVelocity.Parent = nil
+end
+
+local function onInput(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.KeyCode.F then
+        if flying then
+            stopFlying()
+        else
+            startFlying()
+        end
+    elseif input.KeyCode == Enum.KeyCode.E then
+        flySpeed = math.min(flySpeed + 10, maxSpeed) -- Increase speed
+    elseif input.KeyCode == Enum.KeyCode.Q then
+        flySpeed = math.max(flySpeed - 10, minSpeed) -- Decrease speed
+    end
+end
+
+game:GetService("UserInputService").InputBegan:Connect(onInput)
+
+-- Ensure the script applies when respawning
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+end)
