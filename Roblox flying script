@@ -28,7 +28,6 @@ end
 
 local function onInput(input, gameProcessed)
     if gameProcessed then return end
-    
     if input.KeyCode == Enum.KeyCode.F then
         if flying then
             stopFlying()
